@@ -76,6 +76,7 @@ public class Transaction {
     }
 
     public Date getDate() {
+
         return date;
     }
 
@@ -108,7 +109,7 @@ public class Transaction {
     }
 
     public double getCostPln() {
-        return bid*costCurrency;
+        return Math.floor(costPln*100)/100 ;
     }
 
     public void setCostPln(double costPln) {

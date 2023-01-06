@@ -37,7 +37,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void deleteById(int id) {
-
+        transactionRepository.deleteById(id);
     }
 
     @Override

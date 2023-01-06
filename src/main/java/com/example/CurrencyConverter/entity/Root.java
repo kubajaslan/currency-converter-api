@@ -3,50 +3,72 @@ package com.example.CurrencyConverter.entity;
 import java.util.ArrayList;
 
 public class Root{
-    public String table;
-    public String currency;
-    public String code;
-    public ArrayList<Rate> rates;
+    public boolean success;
+    public Query query;
+    public Info info;
+    public String date;
+    public double result;
+    public boolean historical;
 
-    @Override
-    public String toString() {
-        return "Root{" +
-               "table='" + table + '\'' +
-               ", currency='" + currency + '\'' +
-               ", code='" + code + '\'' +
-               ", rates=" + rates +
-               '}';
+
+
+    public Root() {
     }
 
-    public String getTable() {
-        return table;
+    public Root(boolean success, Query query, Info info, String date, double result, boolean historical) {
+        this.success = success;
+        this.query = query;
+        this.info = info;
+        this.date = date;
+        this.result = result;
+        this.historical = historical;
     }
 
-    public void setTable(String table) {
-        this.table = table;
+    public boolean isSuccess() {
+        return success;
     }
 
-    public String getCurrency() {
-        return currency;
+    public void setSuccess(boolean success) {
+        this.success = success;
     }
 
-    public void setCurrency(String currency) {
-        this.currency = currency;
+    public Query getQuery() {
+        return query;
     }
 
-    public String getCode() {
-        return code;
+    public void setQuery(Query query) {
+        this.query = query;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public Info getInfo() {
+        return info;
     }
 
-    public ArrayList<Rate> getRates() {
-        return rates;
+    public void setInfo(Info info) {
+        this.info = info;
     }
 
-    public void setRates(ArrayList<Rate> rates) {
-        this.rates = rates;
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public double getResult() {
+        return result;
+    }
+
+    public void setResult(double result) {
+        this.result = result;
+    }
+
+    public boolean isHistorical() {
+        return historical;
+    }
+
+    public void setHistorical(boolean historical) {
+        this.historical = historical;
     }
 }

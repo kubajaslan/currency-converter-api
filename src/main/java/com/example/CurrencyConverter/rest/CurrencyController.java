@@ -1,22 +1,25 @@
 package com.example.CurrencyConverter.rest;
 
-import com.example.CurrencyConverter.entity.Rate;
+import com.example.CurrencyConverter.entity.Info;
+import com.example.CurrencyConverter.entity.Query;
 import com.example.CurrencyConverter.entity.Root;
 import com.example.CurrencyConverter.entity.Transaction;
 import com.example.CurrencyConverter.helpers.FormInput;
 import com.example.CurrencyConverter.service.TransactionService;
 import com.example.CurrencyConverter.xml.Invoice;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.io.*;
+import java.io.InputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -40,45 +43,45 @@ public class CurrencyController {
         ObjectMapper mapper = new ObjectMapper();
 
         try {
-            System.out.println(transaction.getDate());
 
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
             String dateFormatted = formatter.format(transaction
                                                             .getDate());
 
+
             String code = transaction.getCurrencyCode();
+            Double costCurrency = transaction.getCostCurrency();
 
 
             OkHttpClient client = new OkHttpClient().newBuilder()
                                                     .build();
 
             Request request = new Request.Builder()
-                    .url("https://api.apilayer.com/exchangerates_data/convert?to=PLN&from=USD&amount=100")
+                    .url("https://api.apilayer.com/exchangerates_data/convert?to=PLN&from=" + code + "&amount=" + costCurrency + "&date=" + dateFormatted)
                     .addHeader("apikey", "1L5PHfSr6Er2niN8rUb16SkRYA2uuBxU")
                     .build();
 
             Response response = client.newCall(request)
                                       .execute();
 
-            System.out.println(response.body()
-                                       .string());
-
-
-            URL url = new URL("http://api.nbp.pl/api/exchangerates/rates/c/" + code + "/" + dateFormatted + "/?format=json");
 
             Root root = new Root();
-            Rate rate = new Rate();
-
-            root = mapper.readValue(url, Root.class);
-
-            rate = root.getRates()
-                       .get(0);
+            Info info = new Info();
+            Query query = new Query();
 
 
-            //seting the bid based on the retrieved rate
-            transaction.setBid(rate.getBid());
+            String json = response.body()
+                                  .string();
 
+            root = mapper.readValue(json, Root.class);
+
+            info = root.getInfo();
+            query = root.getQuery();
+
+
+            transaction.setBid(info.getRate());
+            transaction.setCostPln(root.getResult());
 
             transactionService.save(transaction);
 
@@ -146,7 +149,22 @@ public class CurrencyController {
         invoice.setCostPln(transaction.getCostPln());
         invoice.setCurrencyCode(transaction.getCurrencyCode());
         invoice.setCostCurrency(transaction.getCostCurrency());
+        
+        
+        
         return invoice;
     }
+    
+
+
+
+    @GetMapping("/delete")
+    public String delete(@RequestParam("transactionId") int id) {
+
+        transactionService.deleteById(id);
+
+        return "redirect:/conversion/list";
+    }
+
 
 }

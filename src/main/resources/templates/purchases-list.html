@@ -55,17 +55,17 @@
         <tr th:each="transaction:${transactions}">
 
             <td th:text="${transaction.itemName}"/>
-            <td th:text="${transaction.date}"/>
+            <td th:text="${#dates.format(transaction.date, 'dd-MM-yyyy')}"/>
             <td th:text="${transaction.currencyCode}"/>
             <td th:text="${transaction.costCurrency}"/>
             <td th:text="${transaction.costPln}"/>
             <td>
                 <a th:href="@{/conversion/invoice(transactionId=${transaction.id})}" class="btn btn-info btn-sm">
-                    Download invoice
+                    Show info
                 </a>
-                <!--                <a th:href="@{/employees/delete(employeeId=${transaction.id})}" class="btn btn-danger btn-sm">-->
-                <!--                    Delete-->
-                <!--                </a>-->
+                                <a th:href="@{/conversion/delete(transactionId=${transaction.id})}" class="btn btn-danger btn-sm">
+                                    Delete
+                                </a>
             </td>
         </tr>
         </tbody>
