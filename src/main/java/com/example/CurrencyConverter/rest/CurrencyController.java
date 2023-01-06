@@ -151,6 +151,12 @@ public class CurrencyController {
     @PostMapping("/searchDate")
     public String searchPurchasesByDate(@ModelAttribute FormInput formInput, Model model) {
 
+        //if no date was input then redirect to all purchases
+        if(formInput.getDate() == null){
+            List<Transaction> transactions = transactionService.findAll();
+            return "redirect:/conversion/list";
+        }
+
         List<Transaction> transactions = transactionService.findAllByDate(formInput.getDate());
 
         model.addAttribute("transactions", transactions);
