@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html xmlns:th="https://www.thymeleaf.org">
 
@@ -16,7 +15,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 
 <body>
@@ -32,9 +31,18 @@
     </a>
     <br>
 
-    <form action="#" th:action="@{/conversion/list}" th:object="${formInput}"  method="post">
+    <form action="#" th:action="@{/conversion/list}" th:object="${formInput}" method="post">
 
-        Search purchase by item name: <input type="text" th:field="*{content}" />
+        Search purchase by item name: <input type="text" th:field="*{content}"/>
+
+        <input type="submit" value="Search" class="add-button"/>
+
+    </form>
+
+
+    <form action="#" th:action="@{/conversion/searchDate}" th:object="${formInput}" method="post">
+
+        Search purchase by purchase date: <input type="date" th:field="*{date}"/>
 
         <input type="submit" value="Search" class="add-button"/>
 
@@ -63,9 +71,9 @@
                 <a th:href="@{/conversion/invoice(transactionId=${transaction.id})}" class="btn btn-info btn-sm">
                     Show info
                 </a>
-                                <a th:href="@{/conversion/delete(transactionId=${transaction.id})}" class="btn btn-danger btn-sm">
-                                    Delete
-                                </a>
+                <a th:href="@{/conversion/delete(transactionId=${transaction.id})}" class="btn btn-danger btn-sm">
+                    Delete
+                </a>
             </td>
         </tr>
         </tbody>

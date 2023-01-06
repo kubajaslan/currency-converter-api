@@ -21,7 +21,13 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 @Controller
@@ -38,7 +44,16 @@ public class CurrencyController {
 
     @GetMapping("/result")
     public String result(@ModelAttribute("transaction") Transaction transaction, Model model) {
+        Date startingDate = new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime();
+        Date transactionDate = transaction.getDate();
 
+        //validating the date
+
+        if (transactionDate
+                    .before(startingDate) || transactionDate.after(Timestamp.valueOf(LocalDateTime.now()))) {
+
+            return "redirect:/conversion/form";
+        }
 
         ObjectMapper mapper = new ObjectMapper();
 
@@ -76,6 +91,7 @@ public class CurrencyController {
 
             root = mapper.readValue(json, Root.class);
 
+
             info = root.getInfo();
             query = root.getQuery();
 
@@ -109,11 +125,6 @@ public class CurrencyController {
         return "conversion-form";
     }
 
-//    @GetMapping("/download")
-//    public String download(@RequestParam("transactionId") int id) {
-//        return "xxx";
-//    }
-
 
     @GetMapping("/list")
     public String showList(Model model) {
@@ -127,9 +138,20 @@ public class CurrencyController {
     }
 
     @PostMapping("/list")
-    public String searchCustomers(@ModelAttribute FormInput formInput, Model model) {
+    public String searchPurchases(@ModelAttribute FormInput formInput, Model model) {
 
         List<Transaction> transactions = transactionService.findByItemNameContaining(formInput.getContent());
+
+        model.addAttribute("transactions", transactions);
+
+        return "purchases-list";
+
+    }
+
+    @PostMapping("/searchDate")
+    public String searchPurchasesByDate(@ModelAttribute FormInput formInput, Model model) {
+
+        List<Transaction> transactions = transactionService.findAllByDate(formInput.getDate());
 
         model.addAttribute("transactions", transactions);
 
@@ -149,13 +171,10 @@ public class CurrencyController {
         invoice.setCostPln(transaction.getCostPln());
         invoice.setCurrencyCode(transaction.getCurrencyCode());
         invoice.setCostCurrency(transaction.getCostCurrency());
-        
-        
-        
+
+
         return invoice;
     }
-    
-
 
 
     @GetMapping("/delete")

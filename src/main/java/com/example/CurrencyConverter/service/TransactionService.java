@@ -15,6 +15,7 @@ public interface TransactionService {
     public Transaction findByDate(Date date);
 
     public List<Transaction>  findByItemNameContaining(String name);
+    public List<Transaction>  findAllByDate(Date date);
 
     public Transaction findById(int id);
 

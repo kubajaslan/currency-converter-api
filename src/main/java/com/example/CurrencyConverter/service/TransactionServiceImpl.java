@@ -46,6 +46,11 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    public List<Transaction> findAllByDate(Date date) {
+        return transactionRepository.findAllByDate(date);
+    }
+
+    @Override
     public Transaction findById(int id) {
         Optional<Transaction> result = transactionRepository.findById(id);
 
