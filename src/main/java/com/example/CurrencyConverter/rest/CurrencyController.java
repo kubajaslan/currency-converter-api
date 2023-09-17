@@ -44,74 +44,57 @@ public class CurrencyController {
 
     @GetMapping("/result")
     public String result(@ModelAttribute("transaction") Transaction transaction, Model model) {
-        Date startingDate = new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime();
-        Date transactionDate = transaction.getDate();
-
-        //validating the date
-
-        if (transactionDate
-                    .before(startingDate) || transactionDate.after(Timestamp.valueOf(LocalDateTime.now()))) {
-
+        if (!isValidTransactionDate(transaction.getDate())) {
             return "redirect:/conversion/form";
         }
 
-        ObjectMapper mapper = new ObjectMapper();
-
         try {
+            String dateFormatted = formatDate(transaction.getDate());
+            String apiEndpoint = buildApiEndpoint(transaction.getCurrencyCode(), transaction.getCostCurrency(), dateFormatted);
+            Root root = fetchExchangeRate(apiEndpoint);
 
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-
-            String dateFormatted = formatter.format(transaction
-                                                            .getDate());
-
-
-            String code = transaction.getCurrencyCode();
-            Double costCurrency = transaction.getCostCurrency();
-
-
-            OkHttpClient client = new OkHttpClient().newBuilder()
-                                                    .build();
-
-            Request request = new Request.Builder()
-                    .url("https://api.apilayer.com/exchangerates_data/convert?to=PLN&from=" + code + "&amount=" + costCurrency + "&date=" + dateFormatted)
-                    .addHeader("apikey", "1L5PHfSr6Er2niN8rUb16SkRYA2uuBxU")
-                    .build();
-
-            Response response = client.newCall(request)
-                                      .execute();
-
-
-            Root root = new Root();
-            Info info = new Info();
-            Query query = new Query();
-
-
-            String json = response.body()
-                                  .string();
-
-            root = mapper.readValue(json, Root.class);
-
-
-            info = root.getInfo();
-            query = root.getQuery();
-
-
-            transaction.setBid(info.getRate());
-            transaction.setCostPln(root.getResult());
-
+            processExchangeRateResponse(transaction, root);
             transactionService.save(transaction);
-
-
             model.addAttribute("transaction", transaction);
-
-
-        } catch (
-                IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
-
         return "redirect:/conversion/list";
+    }
+
+    private void processExchangeRateResponse(Transaction transaction, Root root) {
+        Info info = root.getInfo();
+        transaction.setBid(info.getRate());
+        transaction.setCostPln(root.getResult());
+    }
+
+    private Root fetchExchangeRate(String apiEndpoint) throws IOException {
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+        Request request = new Request.Builder()
+                .url(apiEndpoint)
+                .addHeader("apikey", "1L5PHfSr6Er2niN8rUb16SkRYA2uuBxU")
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            String json = response.body().string();
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(json, Root.class);
+        }
+    }
+
+    private boolean isValidTransactionDate(Date transactionDate) {
+        Date startingDate = new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime();
+        return transactionDate.before(startingDate) || transactionDate.after(Timestamp.valueOf(LocalDateTime.now()));
+    }
+
+    private String formatDate(Date date) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        return formatter.format(date);
+    }
+
+    private String buildApiEndpoint(String currencyCode, Double costCurrency, String dateFormatted) {
+        return String.format("https://api.apilayer.com/exchangerates_data/convert?to=PLN&from=%s&amount=%.2f&date=%s",
+                currencyCode, costCurrency, dateFormatted);
     }
 
 
@@ -152,7 +135,7 @@ public class CurrencyController {
     public String searchPurchasesByDate(@ModelAttribute FormInput formInput, Model model) {
 
         //if no date was input then redirect to all purchases
-        if(formInput.getDate() == null){
+        if (formInput.getDate() == null) {
             List<Transaction> transactions = transactionService.findAll();
             return "redirect:/conversion/list";
         }
