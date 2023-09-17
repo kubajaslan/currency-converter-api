@@ -1,50 +1,61 @@
 <!DOCTYPE html>
-<html xmlns:th="https://www.thymeleaf.org">
-
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>
-        Add purchase
-    </title>
+    <title>Add Purchase</title>
 
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css">
 
+    <style>
+        body {
+            padding: 20px;
+        }
 
+        .container {
+            max-width: 500px;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="container ms-4">
+<div class="container mt-4">
+    <h4 class="mb-4">Add a purchase with the cost in foreign currency to be converted to PLN</h4>
 
-    <p class="h4 mb-4 mt-4">Add a purchase with the cost in foreign currency to be converted to PLN</p>
+    <form action="#" th:action="@{/conversion/result}" th:object="${transaction}" method="POST">
+        <div class="mb-3">
+            <input type="text" th:field="*{itemName}" class="form-control" placeholder="Item name" required>
+        </div>
 
-    <form action="#" th:action="@{/conversion/result}" th:object="${transaction}" method="GET">
+        <div class="mb-3">
+            <select th:field="*{currencyCode}" class="form-select">
+                <option selected value="">Select currency</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="CHF">CHF</option>
+            </select>
+        </div>
 
-        <input type="text" th:field="*{itemName}" class="form-control-sm mb-4" placeholder="Item name" required>
-        <br>
-        <select th:field="*{currencyCode}" >
-            <option selected value="">Select currency</option>
-            <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-            <option value="CHF">CHF</option>
-        </select>
+        <div class="mb-3">
+            <input type="number" th:field="*{costCurrency}" class="form-control" placeholder="Amount in foreign currency" required>
+        </div>
 
+        <div class="mb-3">
+            <input type="date" th:field="*{date}" class="form-control" placeholder="Date" required>
+        </div>
 
-        <input type="number" th:field="*{costCurrency}" class="form-control-sm mb-4" placeholder="Amount in foreign currency" required>
-        <br>
-        <input type="date" th:field="*{date}" class="form-control-sm mb-4" placeholder="Date" required>
-        <br>
-        <button type="submit" class="btn btn-info col-2">Convert</button>
-
+        <button type="submit" class="btn btn-info">Convert</button>
     </form>
-
 </div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 
 </html>

@@ -1,33 +1,25 @@
 package com.example.CurrencyConverter.rest;
 
 import com.example.CurrencyConverter.entity.Info;
-import com.example.CurrencyConverter.entity.Query;
 import com.example.CurrencyConverter.entity.Root;
 import com.example.CurrencyConverter.entity.Transaction;
 import com.example.CurrencyConverter.helpers.FormInput;
 import com.example.CurrencyConverter.service.TransactionService;
 import com.example.CurrencyConverter.xml.Invoice;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletResponse;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 @Controller
@@ -36,13 +28,16 @@ public class CurrencyController {
 
 
     TransactionService transactionService;
+    private static final String API_BASE_URL = "https://api.apilayer.com/exchangerates_data/convert?to=PLN&from=%s&amount=%.2f&date=%s";
+    private static final String API_KEY = "1L5PHfSr6Er2niN8rUb16SkRYA2uuBxU";
+
 
     @Autowired
     public CurrencyController(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
 
-    @GetMapping("/result")
+    @PostMapping("/result")
     public String result(@ModelAttribute("transaction") Transaction transaction, Model model) {
         if (!isValidTransactionDate(transaction.getDate())) {
             return "redirect:/conversion/form";
@@ -50,7 +45,8 @@ public class CurrencyController {
 
         try {
             String dateFormatted = formatDate(transaction.getDate());
-            String apiEndpoint = buildApiEndpoint(transaction.getCurrencyCode(), transaction.getCostCurrency(), dateFormatted);
+            String apiEndpoint = buildApiEndpoint(transaction.getCurrencyCode(), transaction.getCostCurrency(),
+                    dateFormatted);
             Root root = fetchExchangeRate(apiEndpoint);
 
             processExchangeRateResponse(transaction, root);
@@ -73,7 +69,7 @@ public class CurrencyController {
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         Request request = new Request.Builder()
                 .url(apiEndpoint)
-                .addHeader("apikey", "1L5PHfSr6Er2niN8rUb16SkRYA2uuBxU")
+                .addHeader("apikey", API_KEY)
                 .build();
         try (Response response = client.newCall(request).execute()) {
             String json = response.body().string();
@@ -83,8 +79,7 @@ public class CurrencyController {
     }
 
     private boolean isValidTransactionDate(Date transactionDate) {
-        Date startingDate = new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime();
-        return transactionDate.before(startingDate) || transactionDate.after(Timestamp.valueOf(LocalDateTime.now()));
+        return transactionDate.before(Timestamp.valueOf(LocalDateTime.now()));
     }
 
     private String formatDate(Date date) {
@@ -93,7 +88,7 @@ public class CurrencyController {
     }
 
     private String buildApiEndpoint(String currencyCode, Double costCurrency, String dateFormatted) {
-        return String.format("https://api.apilayer.com/exchangerates_data/convert?to=PLN&from=%s&amount=%.2f&date=%s",
+        return String.format(API_BASE_URL,
                 currencyCode, costCurrency, dateFormatted);
     }
 

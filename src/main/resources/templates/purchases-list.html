@@ -1,84 +1,87 @@
 <!DOCTYPE html>
-<html xmlns:th="https://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-
-    <title>
-        Purchase list
-    </title>
+    <title>Purchase List</title>
 
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css">
 
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style>
+        body {
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+        }
+
+        .add-button {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="container">
-
-    <h3>Purchase list</h3>
+<div class="container mt-4">
+    <h3>Purchase List</h3>
     <hr>
 
-    <!--    @ is the context path-->
-    <a th:href="@{/conversion/form}" class="btn btn-primary btn-sm mb-3">
-        Add purchase
-    </a>
+    <a th:href="@{/conversion/form}" class="btn btn-primary btn-sm mb-3">Add Purchase</a>
     <br>
 
     <form action="#" th:action="@{/conversion/list}" th:object="${formInput}" method="post">
-
-        Search purchase by item name: <input type="text" th:field="*{content}"/>
-
-        <input type="submit" value="Search" class="add-button"/>
-
+        <div class="mb-3">
+            <label for="content" class="form-label">Search Purchase by Item Name:</label>
+            <input type="text" th:field="*{content}" class="form-control"/>
+        </div>
+        <input type="submit" value="Search" class="btn btn-primary add-button"/>
     </form>
-
 
     <form action="#" th:action="@{/conversion/searchDate}" th:object="${formInput}" method="post">
-
-        Search purchase by purchase date: <input type="date" th:field="*{date}"/>
-
-        <input type="submit" value="Search" class="add-button"/>
-
+        <div class="mb-3">
+            <label for="date" class="form-label">Search Purchase by Purchase Date:</label>
+            <input type="date" th:field="*{date}" class="form-control"/>
+        </div>
+        <input type="submit" value="Search" class="btn btn-primary add-button"/>
     </form>
 
-
-    <table class="table table-bordered table-striped">
-        <thead class="thead-dark">
+    <table class="table table-bordered table-striped mt-4">
+        <thead class="table-dark">
         <tr>
             <th>Name</th>
             <th>Date</th>
-            <th>Currency code</th>
-            <th>Cost in currency</th>
+            <th>Currency Code</th>
+            <th>Cost in Currency</th>
             <th>Cost in PLN</th>
+            <th>Action</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="transaction:${transactions}">
-
-            <td th:text="${transaction.itemName}"/>
-            <td th:text="${#dates.format(transaction.date, 'dd-MM-yyyy')}"/>
-            <td th:text="${transaction.currencyCode}"/>
-            <td th:text="${transaction.costCurrency}"/>
-            <td th:text="${transaction.costPln}"/>
+            <td th:text="${transaction.itemName}"></td>
+            <td th:text="${#dates.format(transaction.date, 'dd-MM-yyyy')}"></td>
+            <td th:text="${transaction.currencyCode}"></td>
+            <td th:text="${transaction.costCurrency}"></td>
+            <td th:text="${transaction.costPln}"></td>
             <td>
-                <a th:href="@{/conversion/invoice(transactionId=${transaction.id})}" class="btn btn-info btn-sm">
-                    Show info
-                </a>
-                <a th:href="@{/conversion/delete(transactionId=${transaction.id})}" class="btn btn-danger btn-sm">
-                    Delete
-                </a>
+                <a th:href="@{/conversion/invoice(transactionId=${transaction.id})}" class="btn btn-info btn-sm">Show
+                    Info</a>
+                <a th:href="@{/conversion/delete(transactionId=${transaction.id})}" class="btn btn-danger btn-sm">Delete</a>
             </td>
         </tr>
         </tbody>
     </table>
 </div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 
 </html>
